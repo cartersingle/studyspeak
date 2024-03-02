@@ -23,7 +23,9 @@ export const getSession = async () => {
   const session = await getIronSession<TSession>(cookies(), sessionOptions);
 
   if (!session.isLoggedIn) {
-    return defaultSession;
+    session.userId = defaultSession.userId;
+    session.isLoggedIn = defaultSession.isLoggedIn;
+    return session;
   } else {
     return session;
   }

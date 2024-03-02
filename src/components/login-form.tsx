@@ -15,6 +15,9 @@ import {
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { useTransition } from "react";
+import { login } from "@/actions/auth";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -26,6 +29,7 @@ const formSchema = z.object({
 type TFormSchema = z.infer<typeof formSchema>;
 
 export const LoginForm = () => {
+  const [isPending, startTransition] = useTransition();
   const form = useForm<TFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,7 +38,16 @@ export const LoginForm = () => {
     },
   });
 
-  async function handleLogin(values: TFormSchema) {}
+  async function handleLogin(values: TFormSchema) {
+    startTransition(() => {
+      login(values).then((data) => {
+        if (data?.error) {
+          toast.error(data.message);
+        }
+        return;
+      });
+    });
+  }
 
   return (
     <Form {...form}>

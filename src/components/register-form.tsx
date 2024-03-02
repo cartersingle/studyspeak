@@ -1,7 +1,9 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import * as z from "zod";
 
 import {
@@ -14,7 +16,8 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import Link from "next/link";
+import { register } from "@/actions/auth";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -40,6 +43,7 @@ const formSchema = z
 type TFormSchema = z.infer<typeof formSchema>;
 
 export const RegisterForm = () => {
+  const [isPending, startTransition] = useTransition();
   const form = useForm<TFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,10 +51,20 @@ export const RegisterForm = () => {
       lastName: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  async function handleRegister(values: TFormSchema) {}
+  function handleRegister(values: TFormSchema) {
+    startTransition(() => {
+      register(values).then((data) => {
+        if (data?.error) {
+          toast.error(data.message);
+        }
+        return;
+      });
+    });
+  }
 
   return (
     <Form {...form}>
@@ -122,7 +136,7 @@ export const RegisterForm = () => {
             </FormItem>
           )}
         />
-        <Button>Submit</Button>
+        <Button disabled={isPending}>Submit</Button>
         <div className="flex justify-center">
           <Button variant="link" asChild>
             <Link href="/login">Already have an account?</Link>
