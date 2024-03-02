@@ -3,34 +3,38 @@
 import { FlashCard, Recording } from "@prisma/client";
 import { Skeleton } from "./ui/skeleton";
 import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getRecording } from "@/lib/data";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export const RecordingDetails = ({
-  defaultData,
+  recording,
 }: {
-  defaultData: Recording & {
+  recording: Recording & {
     flashCards: FlashCard[];
   };
 }) => {
-  const isRunning = defaultData.status === "RUNNING";
+  const router = useRouter();
+  const isRunning = recording.status === "RUNNING";
 
-  const { data } = useQuery({
-    queryKey: ["recording", defaultData.id],
-    initialData: defaultData,
-    queryFn: async () => await getRecording(defaultData.id),
-    refetchInterval: isRunning ? 3000 : false,
+  const { mutate } = useMutation({
+    mutationFn: async () =>
+      axios.post("/api/recording", { recordingId: recording.id }),
+    onSuccess: () => {
+      router.refresh();
+    },
+    onError: () => {
+      toast.error("Something went wrong generating flashcards.");
+    },
   });
 
-  useQuery({
-    queryKey: ["generate", defaultData.id],
-    queryFn: async () =>
-      axios.post("/api/recording", { recordingId: data?.id }),
-    enabled: data?.status === "RUNNING",
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
+  useEffect(() => {
+    if (isRunning) {
+      mutate();
+    }
+  }, [isRunning, mutate]);
 
   return (
     <div className="space-y-8 py-8">
@@ -53,7 +57,7 @@ export const RecordingDetails = ({
         <div className="flex justify-center">
           <audio
             className="w-full"
-            src={defaultData.recordingUrl}
+            src={recording.recordingUrl}
             controls
           ></audio>
         </div>
@@ -67,7 +71,7 @@ export const RecordingDetails = ({
             <Skeleton className="h-5 w-full" />
           </div>
         ) : (
-          <p>{data?.recordingText}</p>
+          <p>{recording?.recordingText}</p>
         )}
       </div>
     </div>

@@ -5,8 +5,16 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 import axios from "axios";
+import * as z from "zod";
 
 const router = express.Router();
+
+const responseSchema = z
+  .object({
+    term: z.string(),
+    definition: z.string(),
+  })
+  .array();
 
 router.post("/recording", express.json(), async (req, res) => {
   const { isLoggedIn, userId } = await getExpressSession(
@@ -47,14 +55,57 @@ router.post("/recording", express.json(), async (req, res) => {
       model: "whisper-1",
     });
 
-    fs.unlinkSync(path.join(__dirname, `${recording.id}.webm`));
+    try {
+      fs.unlinkSync(path.join(__dirname, `${recording.id}.webm`));
+    } catch {}
 
-    console.log(transcription);
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful assistant designed to output JSON.",
+        },
+        {
+          role: "user",
+          content: `Based on the following text block generate a list of flashcards 
+            that can be studied in with each flashcard being an object with a term and defintion key, if there is no possible
+            flashcards return an empty list. ${transcription.text}
+            `,
+        },
+      ],
+      model: "gpt-3.5-turbo-0125",
+      response_format: { type: "json_object" },
+    });
+
+    const flashcardsObject = JSON.parse(
+      completion.choices[0].message.content || "[]"
+    );
+
+    const flashcards = responseSchema.parse(flashcardsObject.flashcards);
+
+    await db.recording.update({
+      where: {
+        id: recording.id,
+      },
+      data: {
+        status: "COMPLETE",
+        recordingText: transcription.text,
+      },
+    });
+
+    await db.flashCard.createMany({
+      data: flashcards.map((flashcard) => ({
+        ...flashcard,
+        recordingId: recording.id,
+        userId,
+      })),
+    });
+
+    res.sendStatus(201);
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
   }
-  res.sendStatus(201);
 });
 
 export { router };

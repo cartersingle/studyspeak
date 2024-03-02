@@ -38,3 +38,18 @@ export const getRecording = async (id: string) => {
     },
   });
 };
+
+export const getRecordings = async () => {
+  const { isLoggedIn, userId } = await getSession();
+
+  if (!isLoggedIn) return redirect("/");
+
+  return await db.recording.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};

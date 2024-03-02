@@ -16,7 +16,7 @@ const Recording = async ({
   return (
     <div className="container">
       <h1 className="font-semibold text-3xl">{recording.name}</h1>
-      <RecordingDetails defaultData={recording} />
+      <RecordingDetails recording={recording} />
     </div>
   );
 };
