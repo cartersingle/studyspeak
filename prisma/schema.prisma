@@ -14,8 +14,34 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(cuid())
-  name     String
-  email    String @unique
-  password String
+  id         String      @id @default(cuid())
+  name       String
+  email      String      @unique
+  password   String
+  recordings Recording[]
+  flashCards FlashCard[]
+}
+
+model Recording {
+  id            String      @id @default(cuid())
+  name          String      @default("Untitled")
+  recordingUrl  String
+  recordingText String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashCards    FlashCard[]
+}
+
+model FlashCard {
+  id          String    @id @default(cuid())
+  term        String
+  definition  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  recordingId String
+  recording   Recording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
