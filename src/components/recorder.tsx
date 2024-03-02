@@ -1,9 +1,11 @@
 "use client";
 
+import { saveRecording } from "@/actions/recording";
 import { Button } from "@/components/ui/button";
 import { uploadFiles } from "@/lib/uploadhelpers";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { nanoid } from "nanoid";
 import { useEffect } from "react";
 import { useAudioRecorder } from "react-audio-voice-recorder";
 
@@ -11,20 +13,15 @@ export const Recorder = () => {
   const { mutate } = useMutation({
     mutationFn: async (file: Blob) => {
       console.log(file);
-      console.log(
-        new File([file], "test-audio", {
-          type: "audio/webm;codecs=opus",
-        })
-      );
-      const res = await uploadFiles("audioUploader", {
+      const response = await uploadFiles("audioUploader", {
         files: [
-          new File([file], "test-audio.webm", {
+          new File([file], `${nanoid()}.webm`, {
             type: "audio/webm;codecs=opus",
           }),
         ],
       });
 
-      console.log(res);
+      await saveRecording(response[0].url);
     },
   });
 

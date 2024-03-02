@@ -13,6 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Status {
+  RUNNING
+  COMPLETE
+  ERROR
+}
+
 model User {
   id         String      @id @default(cuid())
   name       String
@@ -27,6 +33,7 @@ model Recording {
   name          String      @default("Untitled")
   recordingUrl  String
   recordingText String?
+  status        Status      @default(RUNNING)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   userId        String

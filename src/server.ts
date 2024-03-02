@@ -4,6 +4,7 @@ import next from "next";
 import dotenv from "dotenv";
 
 import nextBuild from "next/dist/build";
+import { router } from "./server/routes";
 
 dotenv.config({
   path: path.resolve(__dirname, "../.env"),
@@ -28,6 +29,8 @@ const start = async (): Promise<void> => {
   });
 
   const nextHandler = nextApp.getRequestHandler();
+
+  app.use("/api", router);
 
   app.use((req, res) => nextHandler(req, res));
 
