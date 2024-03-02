@@ -1,9 +1,33 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { uploadFiles } from "@/lib/uploadhelpers";
+import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import { useAudioRecorder } from "react-audio-voice-recorder";
 
 export const Recorder = () => {
+  const { mutate } = useMutation({
+    mutationFn: async (file: Blob) => {
+      console.log(file);
+      console.log(
+        new File([file], "test-audio", {
+          type: "audio/webm;codecs=opus",
+        })
+      );
+      const res = await uploadFiles("audioUploader", {
+        files: [
+          new File([file], "test-audio.webm", {
+            type: "audio/webm;codecs=opus",
+          }),
+        ],
+      });
+
+      console.log(res);
+    },
+  });
+
   const {
     startRecording,
     stopRecording,
@@ -13,6 +37,12 @@ export const Recorder = () => {
     isPaused,
     recordingTime,
   } = useAudioRecorder();
+
+  useEffect(() => {
+    if (recordingBlob) {
+      mutate(recordingBlob);
+    }
+  }, [recordingBlob, mutate]);
 
   function handleClick() {
     if (isRecording) {
@@ -30,20 +60,31 @@ export const Recorder = () => {
 
   return (
     <div className="h-full flex flex-col items-center justify-center">
-      <div className="flex flex-col items-center gap-y-2">
-        <p className="text-muted-foreground font-medium">{formattedTime}</p>
-        <Button
-          size="icon"
-          className="size-40 rounded-full text-xl"
-          variant={isRecording ? "outline" : "default"}
-          onClick={handleClick}
-        >
-          {isRecording ? (isPaused ? "Resume" : "Pause") : "Start"}
-        </Button>
-        <Button variant="ghost" onClick={stopRecording} disabled={!isRecording}>
-          Stop Recording
-        </Button>
-      </div>
+      {!recordingBlob ? (
+        <div className="flex flex-col items-center gap-y-2">
+          <p className="text-muted-foreground font-medium">{formattedTime}</p>
+          <Button
+            size="icon"
+            className="size-40 rounded-full text-xl"
+            variant={isRecording ? "outline" : "default"}
+            onClick={handleClick}
+          >
+            {isRecording ? (isPaused ? "Resume" : "Pause") : "Start"}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={stopRecording}
+            disabled={!isRecording}
+          >
+            Stop Recording
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-y-2">
+          <Loader2 className="size-10 animate-spin" />
+          <p className="text-muted-foreground">Saving your recording...</p>
+        </div>
+      )}
     </div>
   );
 };
