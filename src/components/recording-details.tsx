@@ -8,6 +8,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Flashcards } from "./flashcards";
 
 export const RecordingDetails = ({
   recording,
@@ -49,7 +50,7 @@ export const RecordingDetails = ({
             </div>
           </div>
         ) : (
-          <p>Flashcards go here</p>
+          <Flashcards flashcards={recording.flashCards} />
         )}
       </div>
       <div className="space-y-2">
