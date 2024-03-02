@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { getSession } from "@/lib/auth";
 import { MoveRight } from "lucide-react";
 import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
+  const { isLoggedIn } = await getSession();
+
   return (
     <>
       <div className=" max-w-xl mx-auto space-y-8">
@@ -11,7 +14,7 @@ export default function Home() {
           <span className="underline">Superpowers</span> your study habits.
         </h1>
         <Button size="lg" asChild>
-          <Link href="/login">
+          <Link href={isLoggedIn ? "/dashboard" : "/login"}>
             See the Difference
             <MoveRight className="ml-2" />
           </Link>
