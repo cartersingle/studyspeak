@@ -11,7 +11,7 @@ export const Navbar = async () => {
     <nav className="fixed inset-0 h-16 border-b bg-background flex items-center">
       <div className="container flex items-center justify-between">
         <Link
-          href={"/"}
+          href={user ? "/dashboard" : "/"}
           className="text-xl flex items-center hover:bg-muted transition p-2 rounded-md"
         >
           <Mic className="mr-1" />

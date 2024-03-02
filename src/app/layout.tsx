@@ -29,7 +29,7 @@ export default function RootLayout({
       >
         <QueryProvider>
           <Navbar />
-          <main className="pt-24">{children}</main>
+          <main className="pt-24 h-full">{children}</main>
           <Toaster richColors />
         </QueryProvider>
       </body>
