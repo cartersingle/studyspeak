@@ -1,26 +1,33 @@
 import express from "express";
-import OpenAI from "openai";
-// import fetch from "node-fetch";
-import axios from "axios";
-import fs from "fs";
-
+import { getExpressSession } from "../lib/auth";
 import db from "../lib/db";
+import OpenAI from "openai";
+import fs from "fs";
 import path from "path";
+import axios from "axios";
 
 const router = express.Router();
 
 router.post("/recording", express.json(), async (req, res) => {
+  const { isLoggedIn, userId } = await getExpressSession(
+    req,
+    res,
+    process.env.SESSION_PASSWORD as string
+  );
+
+  if (!isLoggedIn) return res.redirect("/");
+
   if (!req.body.recordingId) return res.sendStatus(400);
 
+  const recording = await db.recording.findUnique({
+    where: {
+      id: req.body.recordingId,
+    },
+  });
+
+  if (!recording) return res.sendStatus(404);
+
   try {
-    const recording = await db.recording.findUnique({
-      where: {
-        id: req.body.recordingId,
-      },
-    });
-
-    if (!recording) return res.sendStatus(404);
-
     const openai = new OpenAI({ apiKey: process.env.OPEN_AI_API_KEY });
 
     const download = fs.createWriteStream(
@@ -43,12 +50,11 @@ router.post("/recording", express.json(), async (req, res) => {
     fs.unlinkSync(path.join(__dirname, `${recording.id}.webm`));
 
     console.log(transcription);
-
-    res.sendStatus(201);
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
   }
+  res.sendStatus(201);
 });
 
 export { router };

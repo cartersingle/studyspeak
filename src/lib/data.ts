@@ -1,3 +1,6 @@
+"use server";
+
+import { redirect } from "next/navigation";
 import { getSession } from "./auth";
 import db from "./db";
 
@@ -16,6 +19,22 @@ export const getUser = async () => {
       name: true,
       email: true,
       id: true,
+    },
+  });
+};
+
+export const getRecording = async (id: string) => {
+  const { isLoggedIn, userId } = await getSession();
+
+  if (!isLoggedIn) return redirect("/");
+
+  return await db.recording.findFirst({
+    where: {
+      id,
+      userId,
+    },
+    include: {
+      flashCards: true,
     },
   });
 };

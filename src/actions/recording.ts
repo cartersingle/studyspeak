@@ -16,17 +16,5 @@ export const saveRecording = async (url: string) => {
     },
   });
 
-  const res = await fetch(`${process.env.SERVER_URL}/api/recording`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ recordingId: newRecording.id }),
-  });
-
-  if (res.ok) {
-    return redirect(`/recording/${newRecording.id}`);
-  } else {
-    return { error: true, message: "Something went wrong saving recording." };
-  }
+  return redirect(`/recording/${newRecording.id}`);
 };
