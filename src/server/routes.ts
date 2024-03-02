@@ -34,6 +34,7 @@ router.post("/recording", express.json(), async (req, res) => {
   });
 
   if (!recording) return res.sendStatus(404);
+  if (recording.status === "COMPLETE") return res.sendStatus(200);
 
   try {
     const openai = new OpenAI({ apiKey: process.env.OPEN_AI_API_KEY });
@@ -67,9 +68,7 @@ router.post("/recording", express.json(), async (req, res) => {
         },
         {
           role: "user",
-          content: `Based on the following text block generate a list of flashcards 
-            that can be studied in with each flashcard being an object with a term and defintion key, if there is no possible
-            flashcards return an empty list. ${transcription.text}
+          content: `Based on the following text block generate a list of flashcards that can be studied with each flashcard being an object with a term and definition key, make sure there are no duplicate terms and definitions returned. ${transcription.text}
             `,
         },
       ],

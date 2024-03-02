@@ -1,5 +1,9 @@
 import { RecordingDetails } from "@/components/recording-details";
+import { RecordingTitle } from "@/components/recording-title";
+import { Button } from "@/components/ui/button";
 import { getRecording } from "@/lib/data";
+import { MoveLeft } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 const Recording = async ({
@@ -15,7 +19,15 @@ const Recording = async ({
 
   return (
     <div className="container">
-      <h1 className="font-semibold text-3xl">{recording.name}</h1>
+      <div className="mb-2">
+        <Button size="sm" variant="ghost" asChild>
+          <Link href="/dashboard">
+            <MoveLeft className="mr-2 size-4" />
+            Back
+          </Link>
+        </Button>
+      </div>
+      <RecordingTitle recording={recording} />
       <RecordingDetails recording={recording} />
     </div>
   );

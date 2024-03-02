@@ -5,10 +5,10 @@ import { Skeleton } from "./ui/skeleton";
 import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Flashcards } from "./flashcards";
+import { Button } from "./ui/button";
 
 export const RecordingDetails = ({
   recording,
@@ -20,7 +20,7 @@ export const RecordingDetails = ({
   const router = useRouter();
   const isRunning = recording.status === "RUNNING";
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async () =>
       axios.post("/api/recording", { recordingId: recording.id }),
     onSuccess: () => {
@@ -31,23 +31,21 @@ export const RecordingDetails = ({
     },
   });
 
-  useEffect(() => {
-    if (isRunning) {
-      mutate();
-    }
-  }, [isRunning, mutate]);
-
   return (
     <div className="space-y-8 py-8">
       <div className="aspect-video w-3/4 mx-auto bg-muted rounded-md">
         {isRunning ? (
           <div className=" h-full flex items-center justify-center">
-            <div className="flex flex-col items-center gap-y-2">
-              <Loader2 className="size-10 animate-spin" />
-              <p className="text-muted-foreground">
-                Generating your flashcards...
-              </p>
-            </div>
+            {isPending ? (
+              <div className="flex flex-col items-center gap-y-2">
+                <Loader2 className="size-10 animate-spin" />
+                <p className="text-muted-foreground">
+                  Generating your flashcards...
+                </p>
+              </div>
+            ) : (
+              <Button onClick={() => mutate()}>Generate Flashcards</Button>
+            )}
           </div>
         ) : (
           <Flashcards flashcards={recording.flashCards} />
