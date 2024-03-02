@@ -40,7 +40,7 @@ export const RecordingDetails = ({
 
   return (
     <div className="space-y-8 py-8">
-      <div className="aspect-video w-3/4 mx-auto bg-muted rounded-md">
+      <div className="aspect-video w-full md:w-3/4 mx-auto bg-muted rounded-md">
         {isRunning ? (
           <div className=" h-full flex items-center justify-center">
             {isPending ? (

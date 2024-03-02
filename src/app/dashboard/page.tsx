@@ -13,7 +13,7 @@ const Dashboard = async () => {
           <Link href="/record">Record</Link>
         </Button>
       </div>
-      <div className="grid grid-cols-2 gap-2 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-6">
         {recordings.length === 0 && (
           <div className="col-span-2 flex justify-center mt-8">
             <p className="text-muted-foreground">No flashcards yet</p>
