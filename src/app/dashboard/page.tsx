@@ -13,19 +13,22 @@ const Dashboard = async () => {
           <Link href="/record">Record</Link>
         </Button>
       </div>
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 mt-6">
         {recordings.length === 0 && (
-          <div className="col-span-4 flex justify-center mt-8">
+          <div className="col-span-2 flex justify-center mt-8">
             <p className="text-muted-foreground">No flashcards yet</p>
           </div>
         )}
         {recordings.map((recording) => (
           <Link
-            href={`/recordings/${recording.id}`}
+            href={`/recording/${recording.id}`}
             key={recording.id}
-            className="border rounded-md p-4"
+            className="col-span-1 border rounded-md p-4 flex flex-col justify-between gap-y-8 transition hover:bg-muted"
           >
-            <h2 className="text-2xl">{recording.name}</h2>
+            <h2 className="text-2xl font-medium">{recording.name}</h2>
+            <p className="text-muted-foreground text-sm">
+              {recording.flashCards.length} cards
+            </p>
           </Link>
         ))}
       </div>

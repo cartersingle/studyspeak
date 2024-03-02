@@ -48,6 +48,9 @@ export const getRecordings = async () => {
     where: {
       userId,
     },
+    include: {
+      flashCards: true,
+    },
     orderBy: {
       createdAt: "desc",
     },
