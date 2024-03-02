@@ -35,5 +35,21 @@ export const updateName = async (id: string, name: string) => {
     },
   });
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
+};
+
+export const deleteRecording = async (id: string) => {
+  const { isLoggedIn, userId } = await getSession();
+
+  if (!isLoggedIn) return redirect("/");
+
+  await db.recording.delete({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  revalidatePath("/dashboard");
+  return redirect("/dashboard");
 };

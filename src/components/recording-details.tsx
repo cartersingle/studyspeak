@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Flashcards } from "./flashcards";
 import { Button } from "./ui/button";
+import { useTransition } from "react";
+import { deleteRecording } from "@/actions/recording";
 
 export const RecordingDetails = ({
   recording,
@@ -17,6 +19,7 @@ export const RecordingDetails = ({
     flashCards: FlashCard[];
   };
 }) => {
+  const [isDeleting, startTransition] = useTransition();
   const router = useRouter();
   const isRunning = recording.status === "RUNNING";
 
@@ -30,6 +33,10 @@ export const RecordingDetails = ({
       toast.error("Something went wrong generating flashcards.");
     },
   });
+
+  function handleDelete() {
+    startTransition(() => deleteRecording(recording.id));
+  }
 
   return (
     <div className="space-y-8 py-8">
@@ -72,6 +79,16 @@ export const RecordingDetails = ({
         ) : (
           <p>{recording?.recordingText}</p>
         )}
+      </div>
+      <div className="flex justify-center">
+        <Button
+          variant="link"
+          className="text-destructive"
+          onClick={handleDelete}
+          disabled={isDeleting || isPending}
+        >
+          Delete Flashcards
+        </Button>
       </div>
     </div>
   );
